@@ -1,0 +1,41 @@
+from measmisc import version
+
+from setuptools import setup, find_packages
+
+with open("README.md") as fp:
+	readme = fp.read()
+
+with open("requirements.txt") as fp:
+	requirements = fp.read().splitlines()
+
+setup(
+	name="measmisc",
+	version=version,
+	packages=find_packages(),
+	
+	install_requires=requirements,
+	extras_require={
+		"lid3300ip": ["pyserial>=3.4"]
+	},
+	
+	author="Eero Molkoselkä",
+	author_email="eero.molkoselka@gmail.com",
+	description="Miscellaneous measurement devices.",
+	long_description=readme,
+	url="https://github.com/molkoback/measmisc",
+	license="MIT",
+	
+	entry_points={
+		"console_scripts": [
+			"lid-3300ip = measmisc.devices.lid3300ip:main"
+		]
+	},
+	
+	classifiers=[
+		"License :: OSI Approved :: MIT License",
+		"Operating System :: OS Independent",
+		"Programming Language :: Python :: 3",
+		"Topic :: Scientific/Engineering :: Atmospheric Science",
+		"Topic :: Software Development :: Embedded Systems"
+	]
+)
