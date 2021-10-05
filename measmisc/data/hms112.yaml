@@ -1,0 +1,20 @@
+# HMS112 config
+#
+
+i2c: {
+name: "c232hm",
+opts: {url: "ftdi://ftdi:ft232h/1"}
+}
+
+sql: {
+host: "127.0.0.1",
+port: 3306,
+username: "root",
+password: "",
+database: "measmisc",
+table: "lid3300ip"
+}
+
+meas: {
+interval: 60
+}

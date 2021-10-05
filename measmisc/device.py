@@ -11,19 +11,12 @@ class DeviceStatus(Enum):
 	RUNNING = 2
 	STOPPING = 3
 
-class Measurement:
-	def __init__(self, data, timestamp=time.time()):
-		self.data = data
-		self.timestamp = timestamp
-	
-	def copy(self):
-		return Measurement({**self.data}, timestamp=self.timestamp)
-
 class Device:
 	def __init__(self, **kwargs):
-		self.interval = kwargs.get("interval", 0.0)
-		self._status = DeviceStatus.STOPPED
+		self.interval = kwargs.get("interval", 0.010)
 		self._lock = asyncio.Lock()
+		self._status = DeviceStatus.STOPPED
+		self._meas = None
 	
 	async def run(self):
 		await self.set_status(DeviceStatus.STARTING)
@@ -61,4 +54,5 @@ class Device:
 		return True
 	
 	async def read(self):
-		raise NotImplementedError()
+		async with self._lock:
+			return self._meas

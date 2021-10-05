@@ -15,7 +15,10 @@ setup(
 	
 	install_requires=requirements,
 	extras_require={
-		"lid3300ip": ["pyserial>=3.4"]
+		"apa": [" adafruit-circuitpython-tca9548a>=0.5.0"],
+		"hms112": ["adafruit-circuitpython-ads1x15>=2.2.8"],
+		"lid3300ip": ["pyserial>=3.4"],
+		"us2d": ["pyserial>=3.4"]
 	},
 	
 	author="Eero Molkoselkä",
@@ -27,7 +30,10 @@ setup(
 	
 	entry_points={
 		"console_scripts": [
-			"lid-3300ip = measmisc.devices.lid3300ip:main"
+			"apa = measmisc.apps.apa:main",
+			"hms112 = measmisc.apps.hms112:main",
+			"lid-3300ip = measmisc.apps.lid3300ip:main",
+			"us2d = measmisc.apps.us2d:main"
 		]
 	},
 	

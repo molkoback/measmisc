@@ -1,4 +1,4 @@
-from measmisc import homedir, version
+from measmisc import datadir, homedir, version
 from measmisc.config import Config
 from measmisc.device import DeviceStatus
 
@@ -7,6 +7,7 @@ import asyncio
 from datetime import datetime
 import logging
 import os
+import shutil
 import sys
 import time
 
@@ -45,6 +46,8 @@ class App:
 		parser.add_argument("-c", "--config", type=str, help="config file (default: {})".format(self.default_config_path), metavar="str", default=self.default_config_path)
 		parser.add_argument("-d", "--debug", action="store_true", help="enable debug messages")
 		parser.add_argument("-V", "--version", action="store_true", help="print version information")
+		parser.add_argument("--no_database", action="store_true", help="don't use database")
+		parser.add_argument("--start_now", action="store_true", help="start the measurement immediately")
 		return parser
 	
 	def copy_config(self):
@@ -53,9 +56,12 @@ class App:
 		shutil.copy(src, self.default_config_path)
 	
 	def reset_time(self):
-		i = self.config["meas"]["interval"]
 		now = int(time.time())
-		self.time_next = now // i * i + i if i > 0 else now
+		if self.args.start_now:
+			self.time_next = now
+		else:
+			i = self.config["meas"]["interval"]
+			self.time_next = now // i * i + i if i > 0 else now
 	
 	async def measure(self):
 		self.reset_time()
@@ -64,7 +70,7 @@ class App:
 			status = await self.device.status()
 			if status == DeviceStatus.STARTING:
 				pass
-			elif status == DeviceStatus.RUNNING:
+			elif status == DeviceStatus.RUNNING and time.time() >= self.time_next:
 				meas = await self.device.read()
 				if not meas is None and meas.timestamp >= self.time_next:
 					self.on_measure(meas)
@@ -87,10 +93,11 @@ class App:
 		
 		if self.args.config == self.default_config_path and not os.path.exists(self.args.config):
 			self.copy_config()
-			logging.info("Config file created '{}'".format(ctx.args.config))
+			logging.info("Config file created '{}'".format(self.args.config))
 		
 		self.config = self.create_config()
-		self.database = self.create_database()
+		if not self.args.no_database:
+			self.database = self.create_database()
 		self.device = self.create_device()
 		
 		loop = asyncio.get_event_loop()
