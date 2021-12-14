@@ -1,7 +1,7 @@
 from measmisc.app import App
 from measmisc.database import Database
 from measmisc.device import Device
-from measmisc.meas import DateTime, Measurement
+from measmisc.meas import DateTime, Average, Measurement, Line2D
 from measmisc.hw.i2c import create_i2c
 
 import adafruit_ads1x15.ads1115 as ADS
@@ -31,10 +31,8 @@ class HMS112Database(Database):
 
 class HMS112(Device):
 	def __init__(self, config):
-		super().__init__()
+		super().__init__(interval=1.000)
 		self.config = config
-		self._chan_temp = None
-		self._chan_humidity = None
 	
 	async def init(self):
 		cfg = self.config["i2c"]
@@ -43,27 +41,29 @@ class HMS112(Device):
 		ads.gain = 1
 		self._chan_temp = AnalogIn(ads, ADS.P2, ADS.P3)
 		self._chan_humidity = AnalogIn(ads, ADS.P0, ADS.P1)
+		self._line_temp = Line2D(self.config["temp"]["p0"], self.config["temp"]["p1"])
+		self._line_humidity = Line2D(self.config["humidity"]["p0"], self.config["humidity"]["p1"])
+		interval = self.config["meas"]["interval"]
+		self._avg_temp = (Average(interval), Average(interval))
+		self._avg_humidity = (Average(interval), Average(interval))
 		return True
 	
-	def _read_temp(self):
-		V = -1 * self._chan_temp.voltage
-		return 0, V
-	
-	def _read_humidity(self):
-		V = -1 * self._chan_humidity.voltage
-		return 0, V
-	
-	async def read(self):
-		timestamp = time.time()
-		T, Tr = self._read_temp()
-		H, Hr = self._read_humidity()
-		return Measurement({
-			"DateTime": DateTime(),
-			"Temp": T,
-			"TempRaw": Tr,
-			"Humidity": H,
-			"HumidityRaw": Hr
-		})
+	async def cycle(self):
+		VT = self._chan_temp.voltage
+		VH = self._chan_humidity.voltage
+		self._avg_temp[0].add(self._line_temp.y(VT))
+		self._avg_temp[1].add(VT)
+		self._avg_humidity[0].add(self._line_humidity.y(VH))
+		self._avg_humidity[1].add(VH)
+		async with self._lock:
+			self._meas = Measurement({
+				"DateTime": DateTime(),
+				"Temp": self._avg_temp[0],
+				"TempRaw": self._avg_temp[1],
+				"Humidity": self._avg_humidity[0],
+				"HumidityRaw": self._avg_humidity[1]
+			})
+		return True
 
 class HMS112App(App):
 	def __init__(self):

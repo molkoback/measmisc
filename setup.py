@@ -15,10 +15,7 @@ setup(
 	
 	install_requires=requirements,
 	extras_require={
-		"apa": [" adafruit-circuitpython-tca9548a>=0.5.0"],
-		"hms112": ["adafruit-circuitpython-ads1x15>=2.2.8"],
-		"lid3300ip": ["pyserial>=3.4"],
-		"us2d": ["pyserial>=3.4"]
+		"lid3300ip": ["pyserial>=3.4"]
 	},
 	
 	author="Eero Molkoselkä",
