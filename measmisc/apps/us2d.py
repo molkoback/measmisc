@@ -20,6 +20,7 @@ class US2DDatabase(Database):
 			"DateTime DATETIME NOT NULL,"\
 			"Wind FLOAT NOT NULL,"\
 			"WindDir INT NOT NULL,"\
+			"Temp FLOAT NOT NULL,"\
 			"PRIMARY KEY (ID),"\
 			"INDEX (DateTime)"\
 			");".format(self.database, self.table)
@@ -73,15 +74,17 @@ class US2D(Device):
 		return self._read(end)
 	
 	async def cycle(self):
-		data = self._command("TR", 1, b'\x03')[0]
+		data = self._command("TR", 2, b'\x03')[0]
 		wind = data[1:5]
 		dir = data[6:9]
-		if wind == b'FF.F' or dir == b'FFF':
+		temp = data[10:15]
+		if wind == b'FF.F' or dir == b'FFF' or temp == b'FFF.F':
 			return True
 		self._meas = Measurement({
 			"DateTime": DateTime(),
 			"Wind": float(wind),
-			"WindDir": int(dir)
+			"WindDir": int(dir),
+			"Temp": float(temp)
 		})
 		return True
 
@@ -100,7 +103,7 @@ class US2DApp(App):
 		return device
 	
 	def on_measure(self, meas):
-		logging.info("[{}] {}m/s, {}deg".format(meas.data["DateTime"], meas.data["Wind"], meas.data["WindDir"]))
+		logging.info("[{}] {}m/s, {}°, {}°C".format(meas.data["DateTime"], meas.data["Wind"], meas.data["WindDir"], meas.data["Temp"]))
 
 def main():
 	US2DApp().start()
