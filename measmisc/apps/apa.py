@@ -9,7 +9,6 @@ from adafruit_tca9548a import TCA9548A
 
 import asyncio
 import logging
-import time
 
 class APADatabase(Database):
 	def open(self):

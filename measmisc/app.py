@@ -13,7 +13,7 @@ import time
 
 _version_msg_fmt = """{name} - MeasMisc {version}
 
-Copyright (C) 2020-2021 Eero Molkoselkä <eero.molkoselka@gmail.com>
+Copyright (C) 2020-2023 Eero Molkoselkä <eero.molkoselka@gmail.com>
 """
 
 class App:

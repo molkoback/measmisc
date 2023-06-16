@@ -9,7 +9,6 @@ from adafruit_ads1x15.analog_in import AnalogIn
 
 import asyncio
 import logging
-import time
 
 class HMS112Database(Database):
 	def open(self):

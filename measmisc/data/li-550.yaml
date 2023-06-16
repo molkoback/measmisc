@@ -1,0 +1,19 @@
+# LID-3300IP config
+#
+
+ser: {
+port: "/dev/ttyUSB0"
+}
+
+sql: {
+host: "127.0.0.1",
+port: 3306,
+username: "root",
+password: "",
+database: "measmisc",
+table: "li550"
+}
+
+meas: {
+interval: 60
+}

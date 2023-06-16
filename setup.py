@@ -30,6 +30,7 @@ setup(
 			"apa = measmisc.apps.apa:main",
 			"hms112 = measmisc.apps.hms112:main",
 			"lid-3300ip = measmisc.apps.lid3300ip:main",
+			"li-550 = measmisc.apps.li550:main",
 			"us2d = measmisc.apps.us2d:main"
 		]
 	},
